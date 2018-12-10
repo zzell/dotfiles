@@ -26,24 +26,17 @@
 ;; ~~~~~~~~~~~~
 ;;; Code:
 
+(require 'package)
 (setq package-archives '(("org"   . "http://orgmode.org/elpa/")
                          ("gnu"   . "http://elpa.gnu.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 
-;; TODO: fix mystical error, emacs says
-;; "Warning (package): Unnecessary call to ‘package-initialize’ in init file"
-;; but when I don't he says:
-;; (todo: capture error)
-;; (package-initialize)
-
-(require 'package)
-
-;; use-package
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
-(require 'use-package)
+(setq package-quickstart t)
+
 
 ;; ~~~ CORE ~~~
 
