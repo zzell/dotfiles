@@ -1,3 +1,11 @@
+#### emacs
+```sh
+# latest release
+sudo add-apt-repository -y ppa:ubuntu-elisp \
+  && sudo apt-get update \
+  && sudo apt-get install emacs-snapshot
+```
+
 #### vim
 ```sh
 # rm vim-tiny and install latest release
@@ -7,7 +15,7 @@ sudo apt -y remove vim-tiny \
   && sudo apt install vim
 
 # get and initialize vundle
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim \
   && vim +PluginInstall +qall
 ```
 
