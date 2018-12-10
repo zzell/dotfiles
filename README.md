@@ -19,6 +19,13 @@ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim \
   && vim +PluginInstall +qall
 ```
 
+#### ack
+```sh
+# because 'ack' is already exists
+sudo apt-get install ack-grep \
+  && sudo dpkg-divert --local --divert /usr/bin/ack --rename --add /usr/bin/ack-grep
+```
+
 #### git
 *  use `ssh` instead of `https://`
 ```sh
