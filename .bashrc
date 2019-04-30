@@ -10,13 +10,12 @@ parse_git_branch () {
 }
 
 export NONE='\[\e[0m\]'
-export color_red='\[\033[1;38;5;9m\]'
+export color_red='\[\033[1;38;5;196m\]'
 export color_white='\[\033[1;38;5;231m\]'
 export color_purple='\[\033[1;38;5;141m\]'
 export color_yellow='\[\033[1;38;5;220m\]'
 
-__prompt_command()
-{
+__prompt_command() {
 	local EXIT="$?"
 
 	PS1="${color_red}\u"
