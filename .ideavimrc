@@ -4,3 +4,5 @@ set nogdefault
 set ignorecase
 set scrolloff=5
 set smartcase
+set visualbell
+set noerrorbells
