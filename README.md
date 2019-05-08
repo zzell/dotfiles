@@ -1,10 +1,3 @@
-#### go 
-* linters
-```sh
-go get -u github.com/alecthomas/gometalinter \
-  && gometalinter --install
-```
-
 #### emacs
 ```sh
 # latest release
