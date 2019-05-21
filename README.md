@@ -21,7 +21,6 @@ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim \
 
 #### ack
 ```sh
-# because 'ack' is already exists
 sudo apt-get install ack-grep \
   && sudo dpkg-divert --local --divert /usr/bin/ack --rename --add /usr/bin/ack-grep
 ```
@@ -39,14 +38,4 @@ git config --global url."git@github.com:".insteadOf "https://github.com/"
 tmux -S /tmp/tmux-socket new-session
 # attach
 ssh -t user@host tmux -S /tmp/tmux-socket attach
-```
-
-#### .bashrc
-* improve fzf 
-```bash
-export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
-export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
-export FZF_COMPLETION_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200'"
-
 ```
