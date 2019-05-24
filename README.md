@@ -1,7 +1,8 @@
 #### docker
 ```sh
-curl -fsSL get.docker.com | sh
-sudo usermod -a -G docker $USER
+curl -fsSL get.docker.com | sh \
+  && sudo usermod -a -G docker $USER
+  # reboot (not just logout-login back)
 ```
 
 #### emacs
