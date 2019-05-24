@@ -1,3 +1,9 @@
+#### docker
+```sh
+curl -fsSL get.docker.com | sh
+sudo usermod -a -G docker $USER
+```
+
 #### emacs
 ```sh
 # latest release
