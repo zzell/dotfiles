@@ -39,11 +39,7 @@ sudo apt-get install ack-grep \
 git config --global url."git@github.com:".insteadOf "https://github.com/"
 ```
 
-#### tmux
-* shared session via ssh
+#### staff
 ```sh
-# start session
-tmux -S /tmp/tmux-socket new-session
-# attach
-ssh -t user@host tmux -S /tmp/tmux-socket attach
+sudo apt install xclip
 ```
