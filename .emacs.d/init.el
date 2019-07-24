@@ -17,130 +17,134 @@
 ;;    `\_    _/'
 ;;       ~~~~
 ;;
-;;
-;; go get github.com/rogpeppe/godef
-;; go get -u github.com/nsf/gocode
-;; go get golang.org/x/tools/cmd/guru
-;; go get -u github.com/jstemmer/gotags
-;; go get -u github.com/dougm/goflymake
-;; ~~~~~~~~~~~~
+;; ~~~~~~~~~~~~~~~
 ;;; Code:
 
 (require 'package)
+(package-initialize)
 (setq package-archives '(("org"   . "http://orgmode.org/elpa/")
                          ("gnu"   . "http://elpa.gnu.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
-
 (unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+  (package-install 'use-package)
+  (package-refresh-contents))
+(require 'use-package)
 
-(setq package-quickstart t)
-
+(setq use-package-always-ensure t)
+(load (concat user-emacs-directory "golang.el"))
 
 ;; ~~~ CORE ~~~
 
-(defun mega-prog ()
-  "My 'prog-mode' hook."
-  (setq tab-width 2)
-  (aggressive-indent-mode t)
-  (indent-guide-mode))
-(add-hook 'prog-mode-hook 'mega-prog)
-
-(defun my-go-mode-hook ()
-  "My go-mode hook."
-  (setq gofmt-command "goimports")
-  (go-eldoc-setup))
-(add-hook 'go-mode-hook 'my-go-mode-hook)
-
-;; Start the Emacs server so other clients can connect and use the same session.
-;; This is useful for when you may be oprating Emacs from the GUI usually,
-;; but want to use the same session from a TTY/terminal.
-;; Also handy for when you have your EDITOR set to emacsclient.
 (server-start)
 
-;; Configure Emacs for full UTF-8 compatability
+;; utf-8 staff
 (set-language-environment "UTF-8")
 (set-charset-priority 'unicode)
-(setq locale-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
-(setq default-process-coding-system '(utf-8-unix . utf-8-unix))
 
-;; automaticly revert doc-view-buffers when the file changes on disk.
-(add-hook 'doc-view-mode-hook 'auto-revert-mode)
-
-(defadvice term-handle-exit
-    (after term-kill-buffer-on-exit activate)
-  "Kill buffer after terminal exit."
-  (kill-buffer))
-
+(set-fringe-mode 0)
+(save-place-mode 1)
 (blink-cursor-mode 0)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (menu-bar-mode -1)
 (global-hl-line-mode t)
-(setq-default indent-tabs-mode nil)
-(setq-default truncate-lines t)
-(setq-default cursor-in-non-selected-windows t)
-(setq x-underline-at-descent-line t)
 (electric-pair-mode t)
-(fset 'yes-or-no-p 'y-or-n-p)
 (global-font-lock-mode 1)
-(add-hook 'prog-mode-hook #'linum-mode) ;; Line numbers
 
+(add-to-list 'default-frame-alist '(width . 130))
+
+(defadvice term-handle-exit
+    (after term-kill-buffer-on-exit activate)
+  "Kill buffer after terminal exit."
+  (kill-buffer))
+
+(setq x-underline-at-descent-line t)
+(setq confirm-kill-emacs #'yes-or-no-p)
+(setq locale-coding-system 'utf-8
+      default-process-coding-system '(utf-8-unix . utf-8-unix))
+
+(setq mouse-wheel-follow-mouse 't
+      scroll-conservatively 1000
+      scroll-margin 1
+      scroll-step 1
+      mouse-wheel-scroll-amount '(6 ((shift) . 1))
+      mouse-wheel-progressive-speed nil
+      redisplay-dont-pause t
+      fast-but-imprecise-scrolling nil
+      jit-lock-defer-time 0)
+
+(setq-default ring-bell-function 'ignore)
+
+(setq-default scroll-up-aggressively 0.01
+              scroll-down-aggressively 0.01)
+
+;; startup screen
+(setq inhibit-startup-screen t
+      initial-scratch-message (format ";; %s" (current-time-string)))
+
+(setq-default indent-tabs-mode nil
+              tab-width 2
+              truncate-lines t
+              cursor-in-non-selected-windows t)
+
+(setq-default display-line-numbers-type 'relative)
 (setq-default auto-window-vscroll nil
               fill-column 80
               help-window-select t
               sentence-end-double-space nil
               show-trailing-whitespace nil)
 
-;; Smooth scroll
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-(setq mouse-wheel-progressive-speed nil)
-(setq mouse-wheel-follow-mouse 't)
-(setq scroll-margin 1)
-(setq scroll-step 1)
-(save-place-mode 1) ;; save cursor position
-(setq inhibit-startup-screen t) ;; disable startup screen
-(setq confirm-kill-emacs 'yes-or-no-p)
-(setq initial-scratch-message (format ";; %s" (current-time-string)))
+(defvar autosave-dir (concat user-emacs-directory "autosave/"))
+(when (not (file-exists-p autosave-dir)) (make-directory autosave-dir t))
+(setq make-backup-files nil             ;; fuck them up, 2019 out there, everybody use git
+      auto-save-file-name-transforms `((".*" ,autosave-dir t))
+      auto-save-default t               ;; auto-save every buffer that visits a file
+      auto-save-timeout 20              ;; number of seconds idle time before auto-save (default: 30)
+      auto-save-interval 200)           ;; number of keystrokes between auto-saves (default: 300)
 
-(setq
- make-backup-files nil
- auto-save-default nil
- ring-bell-function 'ignore)
+(defun aggressive-prog-mode ()
+  "Common rules for all prog modes."
+  (highlight-indent-guides-mode)
+  (display-line-numbers-mode))
 
-;; set tramp shell prompt pattern (fix for some fancy prompts)
-(setq-default shell-prompt-pattern "\\(?:^\\|\r\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*")
+(defun aggressive-elisp-mode ()
+  "Elisp specific rules."
+  (aggressive-indent-mode t))
 
-;; use ‘root’ user by default for ssh connections using tramp
-(set-default 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
+;; hooks
+(add-hook 'prog-mode-hook 'aggressive-prog-mode)
+(add-hook 'emacs-lisp-mode-hook 'aggressive-elisp-mode)
 
 ;; ~~~ PACKAGES ~~~
 
-;; set use-package :ensure to always true (:ensure nil - false)
-(setq use-package-always-ensure t)
+(use-package imenu
+  :config
+  (setq imenu-auto-rescan t
+        imenu-use-popup-menu nil)
+  (semantic-mode 1))
+
+(use-package paren
+  :config
+  (show-paren-mode t)
+  (setq show-paren-style 'parenthesis))
 
 (use-package evil
   :init
   (setq evil-want-C-u-scroll t)
   (setq evil-want-C-i-jump nil)
   :config
-  (evil-mode 1)
+  (evil-mode t)
   (setq evil-insert-state-map (make-sparse-keymap))
   (define-key evil-insert-state-map (kbd "<escape>") 'evil-normal-state)
   (setq evil-emacs-state-modes (delq 'ibuffer-mode evil-emacs-state-modes))
   (setq evil-normal-state-cursor '(box "gainsboro")
         evil-insert-state-cursor '((bar . 2) "light steel blue")
         evil-visual-state-cursor '((hbar . 2) "light steel blue")))
-
-(use-package evil-surround
-  :config
-  (global-evil-surround-mode 1))
 
 (use-package general
   :config (general-define-key
@@ -158,16 +162,16 @@
            "p" '(counsel-yank-pop :which-key "yank-pop")
            "TAB" '(alternate-buffer :which-key "alternate-buffer")
            "i" '(counsel-imenu :which-key "imenu")
+           "d" '(dired-other-frame :which-key "dired-other-frame")
 
            "f" '(:ignore t :which-key "files")
            "ff" '(counsel-find-file :which-key "find")
            "fp" '(counsel-projectile-find-file :which-key "projectile-find-file")
            "fr" '(counsel-recentf :which-key "recent")
-           "fo" '(find-file-other-frame :which-key "dired-other-frame")
 
            "b" '(:ignore t :which-key "buffers")
            "bb" '(counsel-ibuffer :which-key "ivy-switch")
-           "bi" '(ibuffer :which-key "ibuffer")
+           "bi" '(ibuffer-other-window :which-key "ibuffer")
            "br" '(rename-buffer :which-key "rename")
 
            "g"  '(:ignore t :which-key "golang")
@@ -188,66 +192,23 @@
            "le" '(eval-region :which-key "eval-region")
            ))
 
-;; Autocomplete
+;; autocomplete
 (use-package company
   :diminish company-mode
-  :config (add-hook 'prog-mode-hook 'company-mode)
+  :config
+  (custom-set-faces '(company-preview ((t (:underline nil)))))
+  (add-hook 'prog-mode-hook 'company-mode)
+  (setq company-global-modes '(not gud-mode))
   (setq company-tooltip-minimum-width 30)
   (setq company-idle-delay 0)
   (setq company-echo-delay 0)
+
   (define-key company-active-map (kbd "C-j") 'company-select-next)
   (define-key company-active-map (kbd "C-k") 'company-select-previous)
   (define-key company-search-map (kbd "C-j") 'company-select-next)
   (define-key company-search-map (kbd "C-k") 'company-select-previous)
   (define-key prog-mode-map (kbd "C-SPC") 'company-complete)
-  (define-key prog-mode-map (kbd "C-SPC") 'company-complete))
-
-;; ~~~ GO ~~~
-
-(use-package go-mode)
-
-;; go-code refrence
-(use-package go-guru
-  :config
-  (add-hook 'go-mode-hook 'go-guru-hl-identifier-mode)
-  (add-to-list 'display-buffer-alist
-               `(,(rx bos "*go-guru-output*" eos)
-                 (display-buffer-reuse-window
-                  display-buffer-in-side-window)
-                 (side            . bottom)
-                 (reusable-frames . visible)
-                 (window-height   . 0.33))))
-
-(use-package company-go
-  :config
-  (add-hook 'go-mode-hook
-            (lambda ()
-              (set (make-local-variable 'company-backends) '(company-go))
-              (company-mode)))
-  (custom-set-faces '(company-preview ((t (:underline nil))))))
-
-
-(use-package go-autocomplete)
-(use-package go-complete)
-(use-package go-dlv)
-(use-package go-errcheck)
-(use-package go-gopath)
-(use-package go-imenu)
-(use-package go-impl)
-(use-package go-imports)
-
-;; ;; Linting
-;; (use-package flycheck-gometalinter
-;;   :init
-;;   ;; skip linting for vendor dirs
-;;   (setq flycheck-gometalinter-vendor t)
-;;   ;; use in test files
-;;   (setq flycheck-gometalinter-test t)
-;;   ;; only use fast linters
-;;   (setq flycheck-gometalinter-fast t)
-;;   ;; explicitly disable 'gotype' & 'govet' linters (also currently broken Nix overlays)
-;;   (setq flycheck-gometalinter-disable-linters '("gotype" "vet" "vetshadow" "megacheck" "interfacer" "ineffassign"))
-;;   :config (progn (flycheck-gometalinter-setup)))
+  )
 
 ;; layouts
 (use-package eyebrowse
@@ -255,9 +216,16 @@
   (eyebrowse-mode 1)
   (setq-default eyebrowse-new-workspace t))
 
-;; indentation levels
-(use-package indent-guide
-  :diminish indent-guide-mode)
+(use-package highlight-indent-guides
+  :config
+  (setq highlight-indent-guides-method 'character)
+  )
+
+(use-package js2-mode
+  :config
+  (add-hook 'restclient-mode-hook
+            (lambda ()
+              (setq-local indent-line-function 'js-indent-line))))
 
 ;; restclient - orgstruct for .http files
 (use-package restclient
@@ -268,33 +236,20 @@
                (string-match "\\.http\\'" buffer-file-name))
       (restclient-mode)
       (orgstruct-mode)
-      (linum-mode)
       (setq-default orgstruct-heading-prefix-regexp "\\#+\\")))
   (add-hook 'find-file-hook 'http-restclient))
 
-;; (use-package shackle
-;;   :defer 1
-;;   :config
-;;   (setq-default
-;;    shackle-rules '((help-mode :inhibit-window-quit t :same t))
-;;    shackle-select-reused-windows t)
-;;   (shackle-mode 1))
-
 ;; Syntax check
 (use-package flycheck
-  :diminish flycheck-mode
-  :init (add-to-list 'load-path "~/go/src/github.com/dougm/goflymake")
   :config
   (add-hook 'prog-mode-hook 'flycheck-mode)
+  (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch new-line))
+  (setq flycheck-indication-mode nil))
 
-
-  (add-to-list 'display-buffer-alist
-               `(,(rx bos "*Flycheck errors*" eos)
-                 (display-buffer-reuse-window
-                  display-buffer-in-side-window)
-                 (side            . bottom)
-                 (reusable-frames . visible)
-                 (window-height   . 0.33))))
+(use-package flycheck-pos-tip
+  :config
+  (with-eval-after-load 'flycheck (flycheck-pos-tip-mode))
+  (setq flycheck-pos-tip-timeout 20))
 
 ;; Ivy
 (use-package counsel
@@ -318,68 +273,33 @@
 
 (use-package neotree
   :config (global-set-key (kbd "M-1") 'neotree-toggle)
-  (setq neo-theme 'arrow)
+  (setq neo-theme 'ascii)
   (setq neo-window-width 35)
   (setq projectile-switch-project-action 'neotree-projectile-action)
   (setq-default neo-smart-open t)
   (setq neo-show-hidden-files t)
   (setq neo-force-change-root t)
-
   (evil-define-key 'normal neotree-mode-map
     (kbd "RET") (neotree-make-executor
                  :file-fn 'neo-open-file
                  :dir-fn 'neo-open-dir)
     (kbd "TAB") (neotree-make-executor
                  :dir-fn 'neo-open-dir)
-    "z" (neotree-make-executor
-         :dir-fn 'neo-open-dir)
-    "ZZ" 'quit-window
-    "gd" (neotree-make-executor
-          :dir-fn 'neo-open-dired)
-    "gD" (neotree-make-executor
-          :dir-fn 'neo-open-dired)
-    "go" (neotree-make-executor
-          :file-fn 'neo-open-file
-          :dir-fn 'neo-open-dir)
-    "gO" 'neotree-quick-look
+    "R" 'neotree-change-root
     "gr" 'neotree-refresh
     "q" 'neotree-hide
     "H" 'neotree-hidden-file-toggle
-    "gh" 'neotree-hidden-file-toggle
-    (kbd "C-k") 'neotree-select-up-node
-    "gk" 'neotree-select-up-node
-    "[" 'neotree-select-up-node
-    (kbd "C-j") 'neotree-select-down-node
-    "gj" 'neotree-select-down-node
-    "]" 'neotree-select-down-node
-    "gv" 'neotree-open-file-in-system-application
     "c" 'neotree-create-node
     "y" 'neotree-copy-node
-    "r" 'neotree-rename-node
-    "R" 'neotree-change-root
     "d" 'neotree-delete-node
+    "r" 'neotree-rename-node
     "J" 'neotree-dir
     "+" 'neotree-stretch-toggle
-    "=" 'neotree-stretch-toggle
-    "ge" 'neotree-enter
-    "j" 'neotree-next-line
-    "k" 'neotree-previous-line
-
-    ;; Unchanged keybings.
-    "a" (neotree-make-executor
-         :file-fn 'neo-open-file-ace-window)
     "|" (neotree-make-executor
          :file-fn 'neo-open-file-vertical-split)
     "-" (neotree-make-executor
          :file-fn 'neo-open-file-horizontal-split)
-    "S" 'neotree-select-previous-sibling-node
-    "s" 'neotree-select-next-sibling-node
-    (kbd "C-c C-c") 'neotree-change-root
-    (kbd "C-x 1") 'neotree-empty-fn
-    (kbd "C-x 2") 'neotree-empty-fn
-    (kbd "C-x 3") 'neotree-empty-fn
-    (kbd "C-x C-f") 'find-file-other-window
-    (kbd "C-c C-f") 'find-file-other-window)
+    )
   )
 
 (use-package projectile
@@ -392,27 +312,47 @@
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
 
+;; hide minor modes
 (use-package diminish
   :config
   (progn
     (diminish 'undo-tree-mode)
     (diminish 'eldoc-mode)))
 
+;; extrimely fucking cool tool
+(use-package xclip
+  :config (xclip-mode))
+
 (use-package evil-escape
   :config
   (global-set-key (kbd "<escape>") 'evil-escape))
 
-;; (use-package magit
-;;   :init
-;;   (setq magit-completing-read-function 'ivy-completing-read))
+(use-package magit
+  :init
+  (setq magit-completing-read-function 'ivy-completing-read))
 
-;; (use-package evil-magit)
+(use-package evil-magit)
+
+(use-package diff-hl
+  :config
+  (global-diff-hl-mode)
+  (diff-hl-margin-mode)
+  (diff-hl-flydiff-mode))
+
+;; ------------------------
+
+;;   (global-git-gutter-mode +1)
+;;   ;; (git-gutter:linum-setup)
+;;   ;; REVERT
+;;   ;; (global-set-key (kbd "C-x v r") 'git-gutter:revert-hunk)
+;;   )
 
 ;; (use-package diff-mode
 ;;   :ensure nil
 ;;   :config
 ;;   (set-face-attribute 'diff-added nil :background nil)
 ;;   (set-face-attribute 'diff-removed nil :background nil))
+
 ;; (use-package ediff-init
 ;;   :ensure nil
 ;;   :config
@@ -471,18 +411,20 @@
    dired-ls-F-marks-symlinks nil
    dired-recursive-copies 'always))
 
-;; Improve fuzzy
+;; improve fuzzy finder
 (use-package flx)
 
 ;; sexy color scheme
 (use-package kaolin-themes
   :config
-  (load-theme 'kaolin-dark t))
+  ;; (load-theme 'kaolin-dark t)
+  (load-theme 'kaolin-galaxy t)
+  )
 
 ;; Easy-motion
 (use-package avy)
 
-;; "gc" for comments
+;; "gc" comments
 (use-package evil-commentary
   :diminish evil-commentary-mode
   :config (evil-commentary-mode 1))
@@ -495,15 +437,6 @@
   :diminish which-key-mode
   :config (which-key-mode))
 
-;; highligh current line-number
-(use-package hlinum
-  :config (hlinum-activate))
-
-(use-package paren
-  :config
-  (show-paren-mode t)
-  (setq show-paren-style 'parenthesis))
-
 (use-package highlight-parentheses
   :diminish 'highlight-parentheses-mode
   :config
@@ -511,41 +444,14 @@
   (set-face-attribute 'hl-paren-face nil :weight 'ultra-bold)
   (setq hl-paren-colors '("Springgreen3" "IndianRed1" "IndianRed3" "IndianRed4" "firebrick4" "red4" "red4" "red4" "red4")))
 
-;; just highlight numbers in buffer
-(use-package highlight-numbers
-  :defer t
-  :init (add-hook 'prog-mode-hook 'highlight-numbers-mode))
-
 (use-package aggressive-indent
-  :diminish aggressive-indent-mode
-  :config (setq-default aggressive-indent-comments-too t))
+  :diminish aggressive-indent-mode)
 
-(use-package json-mode)
-(use-package yaml-mode)
-(use-package js2-mode :mode "\\.js\\'")
+;; (use-package json-mode)
+;; (use-package yaml-mode)
+;; (use-package js2-mode :mode "\\.js\\'")
 
 ;; ~~~ CUSTOM ~~~
-
-(defun set-initial-frame-size (h-margin v-margin centering)
-  "Set Emacs startup windows size relative to monitor parameters V-MARGIN, H-MARGIN are parameters in percents."
-  (when (display-graphic-p)
-    (setq monitor-width (nth 3 (nth 2 (frame-monitor-attributes))))
-    (setq monitor-height (nth 4 (nth 2 (frame-monitor-attributes))))
-    (setq h-px (/ (* monitor-width h-margin) 100))
-    (setq v-px (/ (* monitor-height v-margin) 100))
-    (add-to-list 'initial-frame-alist `(width . ,(/ h-px (frame-char-width))))
-    (add-to-list 'initial-frame-alist `(height . ,(/ v-px (frame-char-height))))
-    (when centering
-      (progn
-        (add-to-list 'initial-frame-alist `(left . ,(/ (- monitor-width h-px) 2)))
-        (add-to-list 'initial-frame-alist `(top . ,(/ (- monitor-height v-px) 2)))))))
-(set-initial-frame-size 80 80 nil)
-
-(defun linum-format-func (line)
-  "Add space at the right side of number LINE."
-  (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
-    (propertize (format (format " %%%dd" w) line) 'face 'linum)))
-(setq linum-format 'linum-format-func)
 
 (defun smarter-move-beginning-of-line (arg)
   (interactive "^p")
@@ -570,31 +476,7 @@
 
 (defun term-mode-paste ()
   "Paste into Emacs terminal like with bash."
-  (define-key term-raw-map (kbd "C-S-v") 'term-paste))
+  (define-key term-raw-map (kbd "C-y") 'term-paste))
 (add-hook 'term-mode-hook 'term-mode-paste)
 
 ;; ~~~ END ~~~
-
-;; (put 'narrow-to-page 'disabled nil)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(persp-mode go-direx indent-guide centered-window yaml-mode which-key use-package restclient popwin perspective neotree kaolin-themes json-mode hlinum highlight-parentheses highlight-numbers go-guru go-fill-struct go-eldoc general focus flycheck-gometalinter evil-surround evil-smartparens evil-quickscope evil-magit evil-lion evil-goggles evil-exchange evil-escape evil-commentary diminish counsel-projectile company-posframe company-go company-flx avy-flycheck auto-complete aggressive-indent)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(company-preview ((t (:underline nil))))
- '(evil-goggles-change-face ((t (:inherit diff-removed))))
- '(evil-goggles-delete-face ((t (:inherit diff-removed))))
- '(evil-goggles-paste-face ((t (:inherit diff-added))))
- '(evil-goggles-undo-redo-add-face ((t (:inherit diff-added))))
- '(evil-goggles-undo-redo-change-face ((t (:inherit diff-changed))))
- '(evil-goggles-undo-redo-remove-face ((t (:inherit diff-removed))))
- '(evil-goggles-yank-face ((t (:inherit diff-changed)))))
-(put 'dired-find-alternate-file 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
