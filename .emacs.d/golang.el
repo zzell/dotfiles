@@ -1,22 +1,20 @@
 ;;; package --- Summary
 ;;; Commentary:
 
-;;; Dependencies:
-;; go get -u github.com/nsf/gocode
-;; go get golang.org/x/tools/cmd/goimports
-;; go get github.com/rogpeppe/godef
+(let ((tools '(("gocode"        . "go get -u github.com/nsf/gocode")
+               ("golangci-lint" . "go get -u github.com/golangci/golangci-lint/cmd/golangci-lint")
+               ("goimports"     . "go get -u -v golang.org/x/tools/cmd/goimports")
+               ("godef"         . "go get github.com/rogpeppe/godef")
+               ("guru"          . "go get -u -v golang.org/x/tools/cmd/guru")
+               ("gorename"      . "go get -u -v golang.org/x/tools/cmd/gorename")
+               ("fillstruct"    . "go get -u github.com/davidrjenni/reftools/cmd/fillstruct"))))
+  (mapc (lambda (element)
+          (let ((name (car element)) (cmd (cdr element)))
+            (when (equal
+                   (shell-command-to-string
+                    (format "%s%s%s" "if command -v " name " >/dev/null; then printf 0; else printf 1; fi")) "1")
+              (progn (message "installing %s..." name) (shell-command-to-string cmd))))) tools))
 
-
-
-;; go get -u github.com/davidrjenni/reftools/cmd/fillstruct
-
-;;; TODO:
-;; gorename
-
-;; ------------ hmmm...
-;; go get golang.org/x/tools/cmd/gorename
-;; go build golang.org/x/tools/cmd/gorename
-;; mv gorename $HOME/bin/
 
 (setq-default gofmt-command "goimports")
 
