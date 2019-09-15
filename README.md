@@ -31,5 +31,10 @@ git config --global url."git@github.com:".insteadOf "https://github.com/"
 
 #### staff
 ```sh
+# | xclip -selection clipboard
 sudo apt install xclip
+
+# fzf
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
 ```
