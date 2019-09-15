@@ -23,12 +23,6 @@ sudo apt -y remove vim-tiny \
   && sudo apt install vim
 ```
 
-#### ack
-```sh
-sudo apt-get install ack-grep \
-  && sudo dpkg-divert --local --divert /usr/bin/ack --rename --add /usr/bin/ack-grep
-```
-
 #### git
 *  use `ssh` instead of `https://`
 ```sh
