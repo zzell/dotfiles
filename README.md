@@ -27,6 +27,10 @@ sudo apt -y remove vim-tiny \
 *  use `ssh` instead of `https://`
 ```sh
 git config --global url."git@github.com:".insteadOf "https://github.com/"
+# generate key
+ssh-keygen -t rsa -b 4096 -C "sukhodolskyi.97@gmail.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa
 ```
 
 #### staff
