@@ -18,3 +18,4 @@ PROMPT_COMMAND=__prompt_command
 
 # aliases
 alias mastermerge="git checkout master && git pull && git checkout - && git merge master"
+alias l1="ls -1"
