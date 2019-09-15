@@ -21,10 +21,6 @@ sudo apt -y remove vim-tiny \
   && sudo add-apt-repository ppa:jonathonf/vim -y \
   && sudo apt update \
   && sudo apt install vim
-
-# get and initialize vundle
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim \
-  && vim +PluginInstall +qall
 ```
 
 #### ack
