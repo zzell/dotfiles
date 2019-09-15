@@ -3,7 +3,7 @@
 # works for ubuntu 18.04
 curl -fsSL get.docker.com | sh \
   && sudo usermod -a -G docker $USER
-  # reboot (not just logout-login back)
+  # reboot
 ```
 
 #### emacs
