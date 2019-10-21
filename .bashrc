@@ -17,6 +17,7 @@ __prompt_command() {
 PROMPT_COMMAND=__prompt_command
 
 # aliases
+alias g="git"
 alias mastermerge="git checkout master && git pull && git checkout - && git merge master"
 alias gcm="git commit -m"
 alias gch="git checkout"
