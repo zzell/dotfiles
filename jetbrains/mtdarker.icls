@@ -1,11 +1,11 @@
-<scheme name="Material Darker copy2" version="142" parent_scheme="Darcula">
+<scheme name="Material Darker copy5" version="142" parent_scheme="Darcula">
   <option name="FONT_SCALE" value="1.0" />
   <metaInfo>
-    <property name="created">2019-12-04T13:23:58</property>
+    <property name="created">2019-12-04T16:23:15</property>
     <property name="ide">GoLand</property>
     <property name="ideVersion">2019.3.0.0</property>
-    <property name="modified">2019-12-04T13:24:17</property>
-    <property name="originalScheme">Material Darker copy2</property>
+    <property name="modified">2019-12-04T16:23:28</property>
+    <property name="originalScheme">Material Darker copy5</property>
   </metaInfo>
   <option name="LINE_SPACING" value="1.2" />
   <font>
@@ -1005,7 +1005,7 @@
     </option>
     <option name="GO_PACKAGE">
       <value>
-        <option name="FOREGROUND" value="eeffff" />
+        <option name="FOREGROUND" value="ffcb6b" />
       </value>
     </option>
     <option name="GO_PACKAGE_EXPORTED_CONSTANT">
