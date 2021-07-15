@@ -1,0 +1,16 @@
+let mapleader=" "
+set lookupkeys+=<C-K>
+
+set clipboard=unnamed
+set hlsearch
+set nogdefault
+set ignorecase
+set scrolloff=5
+set smartcase
+set visualbell
+set noerrorbells
+set incsearch
+
+map <leader><TAB> :e#<CR>
+
+
