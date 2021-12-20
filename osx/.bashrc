@@ -14,7 +14,9 @@ export PROMPT_COMMAND='history -a'
 export GOPATH=$HOME/go
 export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:$HOME/go/bin
-export GOROOT=/usr/local/go
+# export GOROOT=/usr/local/go
+
+export GOROOT="$HOME/homebrew/opt/go@1.15/libexec"
 export GOSUMDB=off
 
 export EDITOR=vim
@@ -27,6 +29,7 @@ export PATH=$PATH:$HOME/bin
 PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 
 # aliases
+alias grep='grep --color=auto'
 # git 
 alias gb="git branch --show-current"
 alias g="git"
@@ -39,6 +42,7 @@ alias gp="git push origin HEAD"
 alias gpl="git pull"
 alias gl="git log --oneline"
 alias gd="git diff"
+alias gr="git reset --hard && git clean -fd"
 
 # other
 alias ll="ls -la"
@@ -54,5 +58,5 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 
 test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
 
+# complete -C /usr/local/bin/terraform terraform
 
-complete -C /usr/local/bin/terraform terraform
